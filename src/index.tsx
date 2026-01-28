@@ -2,114 +2,135 @@ import {
   ButtonItem,
   PanelSection,
   PanelSectionRow,
-  Navigation,
+  TextField,
   staticClasses
 } from "@decky/ui";
-import {
-  addEventListener,
-  removeEventListener,
-  callable,
-  definePlugin,
-  toaster,
-  // routerHook
-} from "@decky/api"
+import { definePlugin, toaster } from "@decky/api";
 import { useState } from "react";
-import { FaShip } from "react-icons/fa";
+import { FaTerminal, FaArrowLeft, FaCopy } from "react-icons/fa";
 
-// import logo from "../assets/logo.png";
-
-// This function calls the python function "add", which takes in two numbers and returns their sum (as a number)
-// Note the type annotations:
-//  the first one: [first: number, second: number] is for the arguments
-//  the second one: number is for the return value
-const add = callable<[first: number, second: number], number>("add");
-
-// This function calls the python function "start_timer", which takes in no arguments and returns nothing.
-// It starts a (python) timer which eventually emits the event 'timer_event'
-const startTimer = callable<[], void>("start_timer");
+enum View {
+  Main,
+  ScaleFactorMenu,
+  Detail125
+}
 
 function Content() {
-  const [result, setResult] = useState<number | undefined>();
+  const [view, setView] = useState<View>(View.Main);
 
-  const onClick = async () => {
-    const result = await add(Math.random(), Math.random());
-    setResult(result);
+  const copyToClipboard = (text: string) => {
+    // 尝试使用 Clipboard API
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => {
+        toaster.toast({
+          title: "Copied",
+          body: "Text copied to clipboard!"
+        });
+      }).catch((err) => {
+        console.error("Clipboard write failed", err);
+        toaster.toast({
+          title: "Error",
+          body: "Failed to copy text."
+        });
+      });
+    } else {
+       // Fallback for some environments if needed, though rare in modern Decky
+       toaster.toast({
+          title: "Error",
+          body: "Clipboard API unavailable."
+       });
+    }
   };
 
-  return (
-    <PanelSection title="Panel Section">
-      <PanelSectionRow>
-        <ButtonItem
-          layout="below"
-          onClick={onClick}
-        >
-          {result ?? "Add two numbers via Python"}
-        </ButtonItem>
-      </PanelSectionRow>
-      <PanelSectionRow>
-        <ButtonItem
-          layout="below"
-          onClick={() => startTimer()}
-        >
-          {"Start Python timer"}
-        </ButtonItem>
-      </PanelSectionRow>
-
-      {/* <PanelSectionRow>
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <img src={logo} />
-        </div>
-      </PanelSectionRow> */}
-
-      {/*<PanelSectionRow>
-        <ButtonItem
-          layout="below"
-          onClick={() => {
-            Navigation.Navigate("/decky-plugin-test");
-            Navigation.CloseSideMenus();
-          }}
-        >
-          Router
-        </ButtonItem>
-      </PanelSectionRow>*/}
-    </PanelSection>
+  // 渲染返回按钮头部的辅助函数
+  const renderHeader = (title: string, onBack: () => void) => (
+    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+      <div 
+        onClick={onBack} 
+        style={{ cursor: 'pointer', marginRight: '10px', display: 'flex', alignItems: 'center' }}
+      >
+        <FaArrowLeft />
+      </div>
+      <div className={staticClasses.Title}>{title}</div>
+    </div>
   );
-};
+
+  // 1. 主界面
+  if (view === View.Main) {
+    return (
+      <PanelSection>
+        <PanelSectionRow>
+          <ButtonItem
+            layout="below"
+            onClick={() => setView(View.ScaleFactorMenu)}
+          >
+            Scale factor
+          </ButtonItem>
+        </PanelSectionRow>
+      </PanelSection>
+    );
+  }
+
+  // 2. Scale Factor 菜单
+  if (view === View.ScaleFactorMenu) {
+    return (
+      <div>
+        {renderHeader("Scale Factor", () => setView(View.Main))}
+        <PanelSection>
+          <PanelSectionRow>
+            <ButtonItem
+              layout="below"
+              onClick={() => setView(View.Detail125)}
+            >
+              *1.25
+            </ButtonItem>
+          </PanelSectionRow>
+        </PanelSection>
+      </div>
+    );
+  }
+
+  // 3. 详情页 (*1.25)
+  if (view === View.Detail125) {
+    const textToCopy = "--force-device-scale-factor=1.25";
+    return (
+      <div>
+        {renderHeader("*1.25 Option", () => setView(View.ScaleFactorMenu))}
+        <PanelSection>
+          <PanelSectionRow>
+            <TextField
+              label="Launch Option"
+              value={textToCopy}
+              disabled={true} // 无法修改
+              onChange={() => {}} // 必须提供 onChange 即使 disabled
+            />
+          </PanelSectionRow>
+          <PanelSectionRow>
+            <ButtonItem
+              layout="below"
+              onClick={() => copyToClipboard(textToCopy)}
+            >
+               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                <FaCopy />
+                <span>Copy to clipboard</span>
+              </div>
+            </ButtonItem>
+          </PanelSectionRow>
+        </PanelSection>
+      </div>
+    );
+  }
+
+  return null;
+}
 
 export default definePlugin(() => {
-  console.log("Template plugin initializing, this is called once on frontend startup")
-
-  // serverApi.routerHook.addRoute("/decky-plugin-test", DeckyPluginRouterTest, {
-  //   exact: true,
-  // });
-
-  // Add an event listener to the "timer_event" event from the backend
-  const listener = addEventListener<[
-    test1: string,
-    test2: boolean,
-    test3: number
-  ]>("timer_event", (test1, test2, test3) => {
-    console.log("Template got timer_event with:", test1, test2, test3)
-    toaster.toast({
-      title: "template got timer_event",
-      body: `${test1}, ${test2}, ${test3}`
-    });
-  });
-
   return {
-    // The name shown in various decky menus
-    name: "Test Plugin",
-    // The element displayed at the top of your plugin's menu
-    titleView: <div className={staticClasses.Title}>Decky Example Plugin</div>,
-    // The content of your plugin's menu
+    name: "Decky Option",
     content: <Content />,
-    // The icon displayed in the plugin list
-    icon: <FaShip />,
-    // The function triggered when your plugin unloads
+    icon: <FaTerminal />,
     onDismount() {
-      console.log("Unloading")
-      removeEventListener("timer_event", listener);
-      // serverApi.routerHook.removeRoute("/decky-plugin-test");
+      // Cleanup if necessary
     },
   };
 });
