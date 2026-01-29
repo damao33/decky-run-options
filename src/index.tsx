@@ -2,59 +2,14 @@ import {
   ButtonItem,
   PanelSection,
   PanelSectionRow,
-  TextField,
-  staticClasses
+  TextField
 } from "@decky/ui";
 import { definePlugin, toaster } from "@decky/api";
-import { useState } from "react";
-import { FaTerminal, FaArrowLeft, FaCopy } from "react-icons/fa";
-
-enum View {
-  Main,
-  ScaleFactorMenu,
-  Detail125
-}
+import { FaTerminal, FaCopy } from "react-icons/fa";
 
 function Content() {
-  const [view, setView] = useState<View>(View.Main);
-
   const copyToClipboard = (text: string) => {
-    const fallbackCopy = () => {
-      try {
-        const textArea = document.createElement("textarea");
-        textArea.value = text;
-        
-        // 确保元素在屏幕外且不可见
-        textArea.style.position = "fixed";
-        textArea.style.left = "-9999px";
-        textArea.style.top = "0";
-        textArea.style.opacity = "0";
-        
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-        
-        const successful = document.execCommand('copy');
-        document.body.removeChild(textArea);
-        
-        if (successful) {
-          toaster.toast({
-            title: "Copied",
-            body: "Text copied to clipboard!"
-          });
-        } else {
-          throw new Error("execCommand copy failed");
-        }
-      } catch (err) {
-        console.error("Fallback copy failed", err);
-        toaster.toast({
-          title: "Error",
-          body: "Failed to copy text."
-        });
-      }
-    };
-
-    // 尝试使用现代 Clipboard API
+    // Simplified copy logic using Clipboard API
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(() => {
         toaster.toast({
@@ -62,99 +17,104 @@ function Content() {
           body: "Text copied to clipboard!"
         });
       }).catch((err) => {
-        console.warn("Clipboard API failed, trying fallback...", err);
-        fallbackCopy();
+        console.error("Clipboard API failed", err);
+        toaster.toast({
+          title: "Error",
+          body: "Failed to copy text."
+        });
       });
     } else {
-      fallbackCopy();
+      // Fallback or error if API not available (though it should be in Decky)
+      toaster.toast({
+        title: "Error",
+        body: "Clipboard API not available."
+      });
     }
   };
 
-  // 渲染返回按钮头部的辅助函数
-  const renderHeader = (title: string, onBack: () => void) => (
-    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-      <div 
-        onClick={onBack} 
-        style={{ cursor: 'pointer', marginRight: '10px', display: 'flex', alignItems: 'center' }}
-      >
-        <FaArrowLeft />
-      </div>
-      <div className={staticClasses.Title}>{title}</div>
-    </div>
-  );
-
-  // 1. 主界面
-  if (view === View.Main) {
-    return (
-      <PanelSection>
+  return (
+    <div style={{ paddingBottom: "20px" }}>
+      {/* 1. ScaleFactor */}
+      <PanelSection title="ScaleFactor">
+        <PanelSectionRow>
+          <TextField
+            label="*1.25"
+            value="--force-device-scale-factor=1.25"
+            disabled={true}
+            onChange={() => {}}
+          />
+        </PanelSectionRow>
         <PanelSectionRow>
           <ButtonItem
             layout="below"
-            onClick={() => setView(View.ScaleFactorMenu)}
+            onClick={() => copyToClipboard("--force-device-scale-factor=1.25")}
           >
-            Scale factor
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+              <FaCopy />
+              <span>Copy to clipboard</span>
+            </div>
           </ButtonItem>
         </PanelSectionRow>
       </PanelSection>
-    );
-  }
 
-  // 2. Scale Factor 菜单
-  if (view === View.ScaleFactorMenu) {
-    return (
-      <div>
-        {renderHeader("Scale Factor", () => setView(View.Main))}
-        <PanelSection>
-          <PanelSectionRow>
-            <ButtonItem
-              layout="below"
-              onClick={() => setView(View.Detail125)}
-            >
-              *1.25
-            </ButtonItem>
-          </PanelSectionRow>
-        </PanelSection>
-      </div>
-    );
-  }
+      {/* 2. FullScreen */}
+      <PanelSection title="FullScreen">
+        <div style={{ padding: "0 10px 10px 10px", fontSize: "0.9em", color: "#8b929a" }}>
+          非强制性的全屏，通常可以用应用特定方式退出全屏
+        </div>
+        <PanelSectionRow>
+          <TextField
+            label="Start Fullscreen"
+            value="--start-fullscreen"
+            disabled={true}
+            onChange={() => {}}
+          />
+        </PanelSectionRow>
+        <PanelSectionRow>
+          <ButtonItem
+            layout="below"
+            onClick={() => copyToClipboard("--start-fullscreen")}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+              <FaCopy />
+              <span>Copy to clipboard</span>
+            </div>
+          </ButtonItem>
+        </PanelSectionRow>
+      </PanelSection>
 
-  // 3. 详情页 (*1.25)
-  if (view === View.Detail125) {
-    const textToCopy = "--force-device-scale-factor=1.25";
-    return (
-      <div>
-        {renderHeader("*1.25 Option", () => setView(View.ScaleFactorMenu))}
-        <PanelSection>
-          <PanelSectionRow>
-            <TextField
-              label="Launch Option"
-              value={textToCopy}
-              disabled={true} // 无法修改
-              onChange={() => {}} // 必须提供 onChange 即使 disabled
-            />
-          </PanelSectionRow>
-          <PanelSectionRow>
-            <ButtonItem
-              layout="below"
-              onClick={() => copyToClipboard(textToCopy)}
-            >
-               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                <FaCopy />
-                <span>Copy to clipboard</span>
-              </div>
-            </ButtonItem>
-          </PanelSectionRow>
-        </PanelSection>
-      </div>
-    );
-  }
-
-  return null;
+      {/* 3. Kiosk */}
+      <PanelSection title="Kiosk">
+         <div style={{ padding: "0 10px 10px 10px", fontSize: "0.9em", color: "#8b929a" }}>
+          强制性的全屏，通常无法退出全屏
+        </div>
+        <PanelSectionRow>
+          <TextField
+            label="Kiosk Mode"
+            value="--kiosk"
+            disabled={true}
+            onChange={() => {}}
+          />
+        </PanelSectionRow>
+        <PanelSectionRow>
+          <ButtonItem
+            layout="below"
+            onClick={() => copyToClipboard("--kiosk")}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+              <FaCopy />
+              <span>Copy to clipboard</span>
+            </div>
+          </ButtonItem>
+        </PanelSectionRow>
+      </PanelSection>
+    </div>
+  );
 }
 
 export default definePlugin(() => {
   return {
-    name: "Decky Option",
+    name: "Decky Option2",
     content: <Content />,
     icon: <FaTerminal />,
     onDismount() {
