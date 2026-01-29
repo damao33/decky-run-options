@@ -26,7 +26,6 @@ bower_components
 
 # Editors
 .idea
-.vscode
 *.iml
 
 # OS metadata
