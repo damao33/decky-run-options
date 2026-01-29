@@ -9,26 +9,27 @@ import { FaTerminal, FaCopy } from "react-icons/fa";
 
 function Content() {
   const copyToClipboard = (text: string) => {
-    // Simplified copy logic using Clipboard API
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(() => {
-        toaster.toast({
-          title: "Copied",
-          body: "Text copied to clipboard!"
-        });
-      }).catch((err) => {
-        console.error("Clipboard API failed", err);
-        toaster.toast({
-          title: "Error",
-          body: "Failed to copy text."
-        });
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.style.position = "fixed";
+    textarea.style.left = "-9999px";
+    document.body.appendChild(textarea);
+    textarea.select();
+
+    try {
+      document.execCommand("copy");
+      toaster.toast({
+        title: "Copied",
+        body: "Text copied to clipboard!"
       });
-    } else {
-      // Fallback or error if API not available (though it should be in Decky)
+    } catch (err) {
+      console.error("Fallback copy failed", err);
       toaster.toast({
         title: "Error",
-        body: "Clipboard API not available."
+        body: "Failed to copy text."
       });
+    } finally {
+      document.body.removeChild(textarea);
     }
   };
 
