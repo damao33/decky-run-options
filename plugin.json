@@ -1,11 +1,13 @@
 {
-  "name": "Decky Option2",
-  "author": "User",
+  "name": "Decky Option",
+  "author": "damao",
   "flags": [],
   "api_version": 1,
   "publish": {
-    "tags": ["utilities"],
-    "description": "A simple plugin to force device scale factor.",
+    "tags": [
+      "utilities"
+    ],
+    "description": "Quickly copy and apply common launch options like UI scaling, fullscreen modes, and window sizes for your apps.",
     "image": ""
   }
 }

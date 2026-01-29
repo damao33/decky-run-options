@@ -172,7 +172,7 @@ function Content() {
 
 export default definePlugin(() => {
   return {
-    name: "Decky Option2",
+    name: "Decky Option",
     content: <Content />,
     icon: <FaTerminal />,
     onDismount() {

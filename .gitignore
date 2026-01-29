@@ -26,6 +26,7 @@ bower_components
 
 # Editors
 .idea
+.vscode
 *.iml
 
 # OS metadata
@@ -55,3 +56,5 @@ out/*
 cli/
 cli/*
 cli/decky
+
+*.zip
