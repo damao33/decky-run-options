@@ -10,7 +10,7 @@ import { useState } from "react";
 import { locales } from "./locales";
 
 function Content() {
-  const [lang, setLang] = useState<'en' | 'zh-cn'>('zh-cn');
+  const [lang, setLang] = useState<'en' | 'zh-cn'>('en');
   const t = locales[lang];
 
   const toggleLanguage = () => {
@@ -49,6 +49,10 @@ function Content() {
     color: "#8b929a"
   };
 
+  const compactRowStyle = {
+    marginTop: "-10px"
+  };
+
   return (
     <div style={{ paddingBottom: "20px" }}>
       <PanelSection>
@@ -71,17 +75,17 @@ function Content() {
             disabled={true}
             onChange={() => {}}
           />
-        </PanelSectionRow>
-        <PanelSectionRow>
-          <ButtonItem
-            layout="below"
-            onClick={() => copyToClipboard("--force-device-scale-factor=1.25")}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-              <FaCopy />
-              <span>Copy to clipboard</span>
-            </div>
-          </ButtonItem>
+          <div style={compactRowStyle}>
+            <ButtonItem
+              layout="below"
+              onClick={() => copyToClipboard("--force-device-scale-factor=1.25")}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                <FaCopy />
+                <span>Copy to clipboard</span>
+              </div>
+            </ButtonItem>
+          </div>
         </PanelSectionRow>
       </PanelSection>
 
@@ -97,17 +101,17 @@ function Content() {
             disabled={true}
             onChange={() => {}}
           />
-        </PanelSectionRow>
-        <PanelSectionRow>
-          <ButtonItem
-            layout="below"
-            onClick={() => copyToClipboard("--start-fullscreen")}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-              <FaCopy />
-              <span>Copy to clipboard</span>
-            </div>
-          </ButtonItem>
+          <div style={compactRowStyle}>
+            <ButtonItem
+              layout="below"
+              onClick={() => copyToClipboard("--start-fullscreen")}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                <FaCopy />
+                <span>Copy to clipboard</span>
+              </div>
+            </ButtonItem>
+          </div>
         </PanelSectionRow>
       </PanelSection>
 
@@ -123,17 +127,17 @@ function Content() {
             disabled={true}
             onChange={() => {}}
           />
-        </PanelSectionRow>
-        <PanelSectionRow>
-          <ButtonItem
-            layout="below"
-            onClick={() => copyToClipboard("--kiosk")}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-              <FaCopy />
-              <span>Copy to clipboard</span>
-            </div>
-          </ButtonItem>
+          <div style={compactRowStyle}>
+            <ButtonItem
+              layout="below"
+              onClick={() => copyToClipboard("--kiosk")}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                <FaCopy />
+                <span>Copy to clipboard</span>
+              </div>
+            </ButtonItem>
+          </div>
         </PanelSectionRow>
       </PanelSection>
 
@@ -149,17 +153,17 @@ function Content() {
             disabled={true}
             onChange={() => {}}
           />
-        </PanelSectionRow>
-        <PanelSectionRow>
-          <ButtonItem
-            layout="below"
-            onClick={() => copyToClipboard("--window-size=1280,800")}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-              <FaCopy />
-              <span>Copy to clipboard</span>
-            </div>
-          </ButtonItem>
+          <div style={compactRowStyle}>
+            <ButtonItem
+              layout="below"
+              onClick={() => copyToClipboard("--window-size=1280,800")}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                <FaCopy />
+                <span>Copy to clipboard</span>
+              </div>
+            </ButtonItem>
+          </div>
         </PanelSectionRow>
       </PanelSection>
     </div>
