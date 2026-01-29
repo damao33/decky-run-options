@@ -5,9 +5,18 @@ import {
   TextField
 } from "@decky/ui";
 import { definePlugin, toaster } from "@decky/api";
-import { FaTerminal, FaCopy } from "react-icons/fa";
+import { FaTerminal, FaCopy, FaLanguage } from "react-icons/fa";
+import { useState } from "react";
+import { locales } from "./locales";
 
 function Content() {
+  const [lang, setLang] = useState<'en' | 'zh-cn'>('zh-cn');
+  const t = locales[lang];
+
+  const toggleLanguage = () => {
+    setLang(prev => prev === 'en' ? 'zh-cn' : 'en');
+  };
+
   const copyToClipboard = (text: string) => {
     const textarea = document.createElement("textarea");
     textarea.value = text;
@@ -33,8 +42,26 @@ function Content() {
     }
   };
 
+  // Compact style helper
+  const descriptionStyle = {
+    padding: "0 10px 5px 10px", // Reduced bottom padding
+    fontSize: "0.9em",
+    color: "#8b929a"
+  };
+
   return (
     <div style={{ paddingBottom: "20px" }}>
+      <PanelSection>
+        <PanelSectionRow>
+            <ButtonItem onClick={toggleLanguage}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                    <FaLanguage />
+                    <span>{t.toggleButtonLabel}</span>
+                </div>
+            </ButtonItem>
+        </PanelSectionRow>
+      </PanelSection>
+
       {/* 1. ScaleFactor */}
       <PanelSection title="ScaleFactor">
         <PanelSectionRow>
@@ -60,8 +87,8 @@ function Content() {
 
       {/* 2. FullScreen */}
       <PanelSection title="FullScreen">
-        <div style={{ padding: "0 10px 10px 10px", fontSize: "0.9em", color: "#8b929a" }}>
-          非强制性的全屏，通常可以用应用特定方式退出全屏
+        <div style={descriptionStyle}>
+          {t.fullScreenDesc}
         </div>
         <PanelSectionRow>
           <TextField
@@ -86,8 +113,8 @@ function Content() {
 
       {/* 3. Kiosk */}
       <PanelSection title="Kiosk">
-         <div style={{ padding: "0 10px 10px 10px", fontSize: "0.9em", color: "#8b929a" }}>
-          强制性的全屏，通常无法退出全屏
+         <div style={descriptionStyle}>
+          {t.kioskDesc}
         </div>
         <PanelSectionRow>
           <TextField
@@ -101,6 +128,32 @@ function Content() {
           <ButtonItem
             layout="below"
             onClick={() => copyToClipboard("--kiosk")}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+              <FaCopy />
+              <span>Copy to clipboard</span>
+            </div>
+          </ButtonItem>
+        </PanelSectionRow>
+      </PanelSection>
+
+      {/* 4. WindowSize */}
+      <PanelSection title="WindowSize">
+         <div style={descriptionStyle}>
+          {t.windowSizeDesc}
+        </div>
+        <PanelSectionRow>
+          <TextField
+            label="Window Size"
+            value="--window-size=1280,800"
+            disabled={true}
+            onChange={() => {}}
+          />
+        </PanelSectionRow>
+        <PanelSectionRow>
+          <ButtonItem
+            layout="below"
+            onClick={() => copyToClipboard("--window-size=1280,800")}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
               <FaCopy />
