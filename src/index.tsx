@@ -19,7 +19,42 @@ function Content() {
   const [view, setView] = useState<View>(View.Main);
 
   const copyToClipboard = (text: string) => {
-    // 尝试使用 Clipboard API
+    const fallbackCopy = () => {
+      try {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        
+        // 确保元素在屏幕外且不可见
+        textArea.style.position = "fixed";
+        textArea.style.left = "-9999px";
+        textArea.style.top = "0";
+        textArea.style.opacity = "0";
+        
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        const successful = document.execCommand('copy');
+        document.body.removeChild(textArea);
+        
+        if (successful) {
+          toaster.toast({
+            title: "Copied",
+            body: "Text copied to clipboard!"
+          });
+        } else {
+          throw new Error("execCommand copy failed");
+        }
+      } catch (err) {
+        console.error("Fallback copy failed", err);
+        toaster.toast({
+          title: "Error",
+          body: "Failed to copy text."
+        });
+      }
+    };
+
+    // 尝试使用现代 Clipboard API
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(() => {
         toaster.toast({
@@ -27,18 +62,11 @@ function Content() {
           body: "Text copied to clipboard!"
         });
       }).catch((err) => {
-        console.error("Clipboard write failed", err);
-        toaster.toast({
-          title: "Error",
-          body: "Failed to copy text."
-        });
+        console.warn("Clipboard API failed, trying fallback...", err);
+        fallbackCopy();
       });
     } else {
-       // Fallback for some environments if needed, though rare in modern Decky
-       toaster.toast({
-          title: "Error",
-          body: "Clipboard API unavailable."
-       });
+      fallbackCopy();
     }
   };
 
